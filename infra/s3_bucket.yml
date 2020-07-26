@@ -10,12 +10,12 @@ Resources:
         - 
           TKey: "TagKey"
           Tval: "TagValue"
-    #   BucketEncryption: 
-    #     ServerSideEncryptionConfiguration: 
-    #       - 
-    #         ServerSideEncryptionByDefault:
-    #           SSEAlgorithm: "aws:kms"
-    #           KMSMasterKeyID : "xxx-yyy-xxx-yyy-xxyyzzz"
+      BucketEncryption: 
+        ServerSideEncryptionConfiguration: 
+          - 
+            ServerSideEncryptionByDefault:
+              SSEAlgorithm: "aws:kms"
+              KMSMasterKeyID : "xxx-yyy-xxx-yyy-xxyyzzz"
       AccessControl: Private
       BucketName: "bucketname"
       LoggingConfiguration:
