@@ -1,0 +1,76 @@
+AWSTemplateFormatVersion: "2010-09-09"
+
+Description: cfn_nag S3 Rule test - Encryption Policy's condition block faulty
+
+Resources:
+  MyS3Bucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      Tags:
+        -  
+          TKey: "TagKey"
+          Tval: "TagValue"
+      # BucketEncryption: 
+      #   ServerSideEncryptionConfiguration: 
+      #     - 
+      #       ServerSideEncryptionByDefault:
+      #         SSEAlgorithm: "aws:kms"
+      #         KMSMasterKeyID : "xxx-yyy-xxx-yyy-xxyyzzz"
+      AccessControl: Private
+      BucketName: "bucketname"
+      LoggingConfiguration:
+        DestinationBucketName: 'String'
+        LogFilePrefix: 'String'
+      CorsConfiguration:
+        CorsRules:
+          - AllowedHeaders: 
+            - '*'
+            AllowedMethods: 
+              - 'PUT'
+              - 'POST'
+            AllowedOrigins: 
+              - '*'
+            MaxAge: '3000'
+
+  MyS3BucketPolicy: 
+    Type: AWS::S3::BucketPolicy
+    DependsOn: MyS3Bucket
+    Properties: 
+      Bucket: !Ref MyS3Bucket
+      PolicyDocument: 
+        Statement: 
+          - 
+            Action: 
+              - "s3:GetObject"
+            Effect: "Allow"
+            Resource: 
+              Fn::Join: 
+                - ""
+                - 
+                  - "arn:aws:s3:bucketname"
+                  - 
+                    Ref: "myExampleBucket"
+                  - "/*"
+            Principal: ""
+            Condition: 
+              StringLike: 
+                aws:Referer: 
+                  - "http://www.example.com/*"
+                  - "http://example.com/*"            
+          - 
+            Sid: "ForceCMKAtUpload"
+            Effect: "Deny"
+            Principal": "*"
+            Action: "s3:PutObject"
+            Resource:  "arn:aws:s3:::/*"
+            Condition:  
+                StringNotEquals:
+                    s3:x-amz-server-side-encryption-aws-kms-key-id: "KMSxxxx"          
+          - 
+            Sid: "DenyCrossVPCandVPCE"
+            Effect: "Deny"
+            Principal": ""
+            Action: "s3:"
+            Resource:  "arn:aws:s3:::/*"
+            Condition:  
+                StringNotEquals:
